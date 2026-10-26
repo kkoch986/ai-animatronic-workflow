@@ -31,6 +31,17 @@ sudo pacman -Syu base-devel cmake opencv dlib portaudio fftw liblo
 yay -Syu base-devel cmake opencv dlib portaudio fftw liblo
 ```
 
+#### Ubuntu/Debian (using apt):
+```bash
+sudo apt-get update
+sudo apt-get install build-essential cmake libopencv-dev libdlib-dev portaudio19-dev libfftw3-dev liblo-dev
+```
+
+#### Fedora:
+```bash
+sudo dnf install gcc-c++ cmake opencv-devel dlib-devel portaudio-devel fftw-devel liblo-devel
+```
+
 ### Building the Project
 
 1. Clone the repository:
@@ -85,6 +96,18 @@ The control system will handle:
 - DMX512 protocol support for hardware control
 - Mapping of video/audio inputs to physical movements
 - Response generation algorithms for realistic animatronic behavior
+
+## Docker Setup (Alternative Installation)
+
+A Dockerfile is provided for containerized deployment:
+
+```bash
+# Build the Docker image
+docker build -t ai-animatronic-system .
+
+# Run the container
+docker run -it --rm ai-animatronic-system
+```
 
 ## Contributing
 
