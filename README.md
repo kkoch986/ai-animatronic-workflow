@@ -21,20 +21,14 @@ This repository contains the C++ implementation for an AI-powered animatronic sy
 
 To build and run this system, you'll need to install the following dependencies:
 
-#### Ubuntu/Debian:
+#### Arch Linux (using pacman):
 ```bash
-sudo apt update
-sudo apt install -y build-essential cmake libopencv-dev libdlib-dev portaudio19-dev libfftw3-dev liblo-dev
+sudo pacman -Syu base-devel cmake opencv dlib portaudio fftw liblo
 ```
 
-#### CentOS/RHEL/Fedora:
+#### Arch Linux (using yay):
 ```bash
-sudo dnf install -y gcc-c++ cmake opencv-devel dlib-devel portaudio-devel fftw-devel liblo-devel
-```
-
-#### macOS:
-```bash
-brew install cmake opencv dlib portaudio fftw liblo
+yay -Syu base-devel cmake opencv dlib portaudio fftw liblo
 ```
 
 ### Building the Project
