@@ -1,13 +1,11 @@
 #include "audio/audio_processor.h"
-#include <portaudio.h>
-#include <fftw3.h>
 #include <iostream>
 #include <vector>
 #include <cmath>
 
 namespace audio {
     
-AudioProcessor::AudioProcessor() : initialized(false), audio_stream(nullptr) {
+AudioProcessor::AudioProcessor() : initialized(false), stream(nullptr), sampleRate(44100), framesPerBuffer(512) {
     // Constructor implementation
 }
 
@@ -18,90 +16,105 @@ AudioProcessor::~AudioProcessor() {
     }
 }
 
-void AudioProcessor::initialize() {
+void AudioProcessor::initialize(int rate, int frames) {
     try {
+        sampleRate = rate;
+        framesPerBuffer = frames;
+        
         // Initialize PortAudio
         Pa_Initialize();
         
-        // Get default audio input device
-        PaDeviceIndex device = Pa_GetDefaultInputDevice();
-        if (device == paNoDevice) {
-            throw std::runtime_error("No default input device found");
-        }
-        
-        // Configure audio parameters
-        input_params.device = device;
-        input_params.channelCount = 1;           // Mono audio
-        input_params.sampleFormat = paFloat32;   // 32-bit floating point
-        input_params.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowInputLatency;
-        input_params.hostApiSpecificStreamInfo = nullptr;
-        
-        // Set sample rate and buffer size
-        sample_rate = 44100;    // Standard audio sample rate
-        buffer_size = 1024;     // Audio buffer size
-        
-        std::cout << "Audio processor initialized successfully" << std::endl;
-        std::cout << "Sample rate: " << sample_rate << " Hz" << std::endl;
-        std::cout << "Buffer size: " << buffer_size << " samples" << std::endl;
+        // Open audio stream
+        Pa_OpenDefaultStream(&stream, 1, 0, paFloat32, sampleRate, framesPerBuffer, nullptr, nullptr);
         
         initialized = true;
+        std::cout << "Audio processor initialized successfully" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error initializing audio processor: " << e.what() << std::endl;
         initialized = false;
     }
 }
 
-int AudioProcessor::audioCallback(const void *inputBuffer, void *outputBuffer,
-                                  unsigned long framesPerBuffer,
-                                  const PaStreamCallbackTimeInfo* timeInfo,
-                                  PaStreamCallbackFlags statusFlags,
-                                  void *userData) {
-    // This is a dummy callback - in a full implementation this would process audio data
-    return paContinue;
-}
-
 void AudioProcessor::processAudio() {
+    // This method will be implemented in later phases
     if (!initialized) {
         return;
     }
     
-    try {
-        // In a real implementation, this would:
-        // 1. Capture audio from microphone
-        // 2. Apply FFT for frequency analysis
-        // 3. Extract audio features (volume, pitch, speech detection)
-        // 4. Generate audio-reactive control signals
-        
-        std::cout << "Processing audio data..." << std::endl;
-        
-        // For now, we'll simulate audio processing
-        static int counter = 0;
-        counter++;
-        
-        if (counter % 100 == 0) {
-            std::cout << "Audio processing cycle " << counter/100 << std::endl;
-        }
-        
-    } catch (const std::exception& e) {
-        std::cerr << "Error processing audio: " << e.what() << std::endl;
-    }
+    // In a real implementation, this would:
+    // 1. Capture audio samples
+    // 2. Process them with FFT
+    // 3. Extract meaningful features
+    // 4. Map to control parameters
+    
+    std::cout << "Processing audio data" << std::endl;
 }
 
 void AudioProcessor::release() {
-    if (initialized) {
-        // Stop audio stream if running
-        if (audio_stream) {
-            Pa_StopStream(audio_stream);
-            Pa_CloseStream(audio_stream);
-            audio_stream = nullptr;
-        }
-        
-        // Terminate PortAudio
-        Pa_Terminate();
-        
-        initialized = false;
-        std::cout << "Audio processor released" << std::endl;
+    if (stream) {
+        Pa_CloseStream(stream);
+        stream = nullptr;
     }
+    
+    Pa_Terminate();
+    initialized = false;
+    std::cout << "Audio processor released" << std::endl;
+}
+
+void AudioProcessor::startCapture() {
+    if (!initialized || !stream) {
+        return;
+    }
+    
+    Pa_StartStream(stream);
+    std::cout << "Audio capture started" << std::endl;
+}
+
+void AudioProcessor::stopCapture() {
+    if (!initialized || !stream) {
+        return;
+    }
+    
+    Pa_StopStream(stream);
+    std::cout << "Audio capture stopped" << std::endl;
+}
+
+std::vector<double> AudioProcessor::performFFT(const std::vector<float>& input) {
+    if (input.empty()) {
+        return {};
+    }
+    
+    int n = input.size();
+    std::vector<double> output(n);
+    
+    // Create FFTW plan
+    fftw_plan plan = fftw_plan_dft_r2c_1d(n, const_cast<float*>(input.data()), 
+                                         reinterpret_cast<fftw_complex*>(output.data()), 
+                                         FFTW_MEASURE);
+    
+    // Execute FFT
+    fftw_execute(plan);
+    
+    // Clean up
+    fftw_destroy_plan(plan);
+    
+    return output;
+}
+
+std::vector<double> AudioProcessor::getFrequencyBands(const std::vector<double>& fftResult, int numBands) {
+    if (fftResult.empty() || numBands <= 0) {
+        return {};
+    }
+    
+    std::vector<double> bands(numBands, 0.0);
+    int n = fftResult.size();
+    
+    // Simple banding - distribute FFT bins across frequency bands
+    for (int i = 0; i < n && i < numBands; ++i) {
+        bands[i] = fftResult[i];
+    }
+    
+    return bands;
 }
 
 } // namespace audio
