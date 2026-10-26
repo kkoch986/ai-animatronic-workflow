@@ -7,10 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find required packages
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(dlib REQUIRED)
 
 # Include directories
 include_directories(include)
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${DLIB_INCLUDE_DIRS})
 
 # Source files
 set(SOURCES
@@ -26,5 +28,6 @@ add_executable(animatronic_system ${SOURCES})
 # Link libraries
 target_link_libraries(animatronic_system 
     ${OpenCV_LIBS}
+    ${DLIB_LIBRARIES}
     pthread
 )
