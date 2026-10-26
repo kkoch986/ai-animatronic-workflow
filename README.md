@@ -17,15 +17,85 @@ This repository contains the C++ implementation for an AI-powered animatronic sy
 
 ## Getting Started
 
-1. Clone the repository
-2. Install required dependencies (OpenCV, Dlib, PortAudio, FFTW, liblo)
-3. Build using CMake
-4. Run the system
+### Prerequisites
+
+To build and run this system, you'll need to install the following dependencies:
+
+#### Ubuntu/Debian:
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake libopencv-dev libdlib-dev portaudio19-dev libfftw3-dev liblo-dev
+```
+
+#### CentOS/RHEL/Fedora:
+```bash
+sudo dnf install -y gcc-c++ cmake opencv-devel dlib-devel portaudio-devel fftw-devel liblo-devel
+```
+
+#### macOS:
+```bash
+brew install cmake opencv dlib portaudio fftw liblo
+```
+
+### Building the Project
+
+1. Clone the repository:
+```bash
+git clone https://github.com/kkoch986/ai-animatronic-workflow.git
+cd ai-animatronic-workflow
+```
+
+2. Create build directory and configure:
+```bash
+mkdir build && cd build
+cmake ..
+```
+
+3. Compile the project:
+```bash
+make
+```
+
+4. Run the system:
+```bash
+./animatronic_system
+```
 
 ## System Architecture
 
 The system is organized into several modules:
-- Video processing module
+- Video processing module (facial detection and landmark tracking)
 - Audio processing module  
 - Control system module
 - Hardware interface module
+
+## Phase 2: Facial Detection Implementation
+
+The facial detection system includes:
+- Real-time face detection using Dlib's frontal face detector
+- 68-point facial landmark detection
+- Visualization of detected faces and landmarks
+
+## Phase 3: Audio Processing (In Progress)
+
+The audio processing system will include:
+- Real-time audio capture with PortAudio
+- FFTW-based signal processing
+- Feature extraction algorithms for speech and sound analysis
+- Integration with control systems for audio-reactive responses
+
+## Phase 4: Control System Implementation
+
+The control system will handle:
+- OSC protocol communication with external systems
+- DMX512 protocol support for hardware control
+- Mapping of video/audio inputs to physical movements
+- Response generation algorithms for realistic animatronic behavior
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
