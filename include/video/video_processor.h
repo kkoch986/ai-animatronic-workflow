@@ -1,9 +1,20 @@
 #ifndef VIDEO_PROCESSOR_H
 #define VIDEO_PROCESSOR_H
 
+#include <opencv2/opencv.hpp>
+#include <dlib/image_processing.h>
+#include <dlib/image_processing/frontal_face_detector.h>
+#include <dlib/image_processing/shape_predictor.h>
+#include <vector>
+
 namespace video {
     
 class VideoProcessor {
+private:
+    bool initialized;
+    dlib::frontal_face_detector detector;
+    dlib::shape_predictor sp;
+    
 public:
     VideoProcessor();
     ~VideoProcessor();
@@ -11,11 +22,6 @@ public:
     void initialize();
     void processFrame(cv::Mat& frame);
     void release();
-    
-private:
-    // Video processing members
-    cv::VideoCapture capture;
-    bool initialized;
 };
 
 } // namespace video
