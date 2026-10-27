@@ -2,27 +2,31 @@
 #define VIDEO_PROCESSOR_H
 
 #include <opencv2/opencv.hpp>
-#include <dlib/image_processing.h>
-#include <dlib/image_processing/frontal_face_detector.h>
-#include <dlib/image_processing/shape_predictor.h>
-#include <dlib/opencv/cv_image.h>
-#include <vector>
+#include "facial_analysis.h"
+#include <memory>
 
 namespace video {
     
 class VideoProcessor {
 private:
+    cv::VideoCapture cap;
     bool initialized;
-    dlib::frontal_face_detector detector;
-    dlib::shape_predictor sp;
+    FacialAnalysis facialAnalyzer;
     
 public:
     VideoProcessor();
     ~VideoProcessor();
     
-    void initialize();
-    void processFrame(cv::Mat& frame);
+    bool initialize(int deviceId = 0);
+    bool processFrame(cv::Mat& frame);
     void release();
+    
+    // Feature extraction methods
+    FacialFeatures extractFacialFeatures(const cv::Mat& frame);
+    void drawFacialFeatures(cv::Mat& frame, const FacialFeatures& features);
+    
+    // Utility methods
+    bool isInitialized() const { return initialized; }
 };
 
 } // namespace video
