@@ -2,6 +2,8 @@
 #define AUDIO_PROCESSOR_H
 
 #include <portaudio.h>
+#include <fftw3.h>
+#include <vector>
 #include <string>
 
 namespace audio {
@@ -9,25 +11,23 @@ namespace audio {
 class AudioProcessor {
 private:
     bool initialized;
-    PaStream* audio_stream;
-    PaStreamParameters input_params;
-    unsigned int sample_rate;
-    unsigned int buffer_size;
+    PaStream* stream;
+    int sampleRate;
+    int framesPerBuffer;
     
 public:
     AudioProcessor();
     ~AudioProcessor();
     
-    void initialize();
+    void initialize(int rate, int frames);
     void processAudio();
     void release();
+    void startCapture();
+    void stopCapture();
     
-    // Callback function for PortAudio
-    static int audioCallback(const void *inputBuffer, void *outputBuffer,
-                            unsigned long framesPerBuffer,
-                            const PaStreamCallbackTimeInfo* timeInfo,
-                            PaStreamCallbackFlags statusFlags,
-                            void *userData);
+    // FFT processing methods
+    std::vector<double> performFFT(const std::vector<float>& input);
+    std::vector<double> getFrequencyBands(const std::vector<double>& fftResult, int numBands);
 };
 
 } // namespace audio

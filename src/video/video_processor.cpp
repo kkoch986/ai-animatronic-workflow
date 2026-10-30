@@ -1,11 +1,5 @@
 #include "video/video_processor.h"
-#include <opencv2/opencv.hpp>
-#include <dlib/image_processing.h>
-#include <dlib/image_processing/frontal_face_detector.h>
-#include <dlib/image_processing/render_face_detections.h>
-#include <dlib/image_processing/shape_predictor.h>
 #include <iostream>
-#include <fstream>
 
 namespace video {
     
@@ -20,79 +14,64 @@ VideoProcessor::~VideoProcessor() {
     }
 }
 
-void VideoProcessor::initialize() {
+bool VideoProcessor::initialize(int deviceId) {
     try {
-        // Initialize face detector
-        detector = dlib::get_frontal_face_detector();
+        // Open video capture device
+        cap.open(deviceId);
         
-        // Load shape predictor model for facial landmarks
-        // Note: This path should be updated to point to your actual model file
-        std::string shape_predictor_path = "data/shape_predictor_68_face_landmarks.dat";
-        
-        // Check if model file exists
-        std::ifstream file(shape_predictor_path);
-        if (file.good()) {
-            dlib::deserialize(shape_predictor_path) >> sp;
-            std::cout << "Loaded shape predictor model from: " << shape_predictor_path << std::endl;
-        } else {
-            std::cerr << "Warning: Shape predictor model not found at " << shape_predictor_path 
-                      << ". Facial landmarks will not be available." << std::endl;
+        if (!cap.isOpened()) {
+            std::cerr << "Error: Could not open video device " << deviceId << std::endl;
+            return false;
         }
         
-        std::cout << "Video processor initialized successfully" << std::endl;
+        // Set video properties (optional)
+        cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+        cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+        cap.set(cv::CAP_PROP_FPS, 30);
+        
         initialized = true;
+        std::cout << "Video processor initialized successfully" << std::endl;
+        return true;
     } catch (const std::exception& e) {
         std::cerr << "Error initializing video processor: " << e.what() << std::endl;
         initialized = false;
+        return false;
     }
 }
 
-void VideoProcessor::processFrame(cv::Mat& frame) {
-    // Process individual frame
-    if (!initialized || frame.empty()) {
-        return;
+bool VideoProcessor::processFrame(cv::Mat& frame) {
+    if (!initialized || !cap.isOpened()) {
+        return false;
     }
     
     try {
-        // Convert OpenCV Mat to dlib image format
-        dlib::cv_image<dlib::bgr_pixel> cimg(frame);
-        
-        // Detect faces
-        std::vector<dlib::rectangle> faces = detector(cimg);
-        
-        // Process each detected face
-        for (const auto& face : faces) {
-            // Draw rectangle around face
-            cv::Point pt1(face.left(), face.top());
-            cv::Point pt2(face.right(), face.bottom());
-            cv::rectangle(frame, pt1, pt2, cv::Scalar(0, 255, 0), 2);
-            
-            std::cout << "Detected face at: (" << face.left() << ", " << face.top() 
-                      << ") - (" << face.right() << ", " << face.bottom() << ")" << std::endl;
-            
-            // If we have a shape predictor model, extract facial landmarks
-            if (sp) {
-                dlib::full_object_detection shape = sp(cimg, face);
-                
-                // Draw facial landmarks
-                for (unsigned long i = 0; i < shape.num_parts(); ++i) {
-                    cv::Point point(shape.part(i).x(), shape.part(i).y());
-                    cv::circle(frame, point, 2, cv::Scalar(0, 0, 255), -1);
-                }
-                
-                std::cout << "Extracted " << shape.num_parts() << " facial landmarks" << std::endl;
-            }
+        // Capture a frame
+        if (!cap.read(frame)) {
+            std::cerr << "Error: Could not read frame from video device" << std::endl;
+            return false;
         }
         
+        return true;
     } catch (const std::exception& e) {
-        std::cerr << "Error processing frame: " << e.what() << std::endl;
+        std::cerr << "Error processing video frame: " << e.what() << std::endl;
+        return false;
     }
 }
 
 void VideoProcessor::release() {
-    // Release resources
+    if (cap.isOpened()) {
+        cap.release();
+    }
     initialized = false;
     std::cout << "Video processor released" << std::endl;
+}
+
+FacialFeatures VideoProcessor::extractFacialFeatures(const cv::Mat& frame) {
+    return facialAnalyzer.analyzeFrame(frame);
+}
+
+void VideoProcessor::drawFacialFeatures(cv::Mat& frame, const FacialFeatures& features) {
+    facialAnalyzer.drawFeatures(frame, features);
 }
 
 } // namespace video
