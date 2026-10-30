@@ -1,0 +1,11 @@
+# Requirements for Cactus Whistle Plugin
+# Note: Actual Cactus Whistle library installation will be required separately
+
+cactus-needle>=0.1.0
+numpy>=1.21.0
+scipy>=1.7.0
+soundfile>=0.10.0
+requests>=2.25.0
+
+# For the mock implementation
+pydub>=0.25.0
