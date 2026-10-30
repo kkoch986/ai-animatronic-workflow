@@ -1,0 +1,18 @@
+{
+  "name": "Cactus Whistle",
+  "version": "1.0.0",
+  "description": "Cactus Whistle speech recognition plugin",
+  "settings": {
+    "whistle_duration": 3.0,
+    "base_frequency": 440.0,
+    "sample_rate": 22050,
+    "language": "en",
+    "model_path": "",
+    "enable_voice_input": true
+  },
+  "dependencies": [
+    "cactus-needle>=0.1.0",
+    "numpy>=1.21.0",
+    "soundfile>=0.10.0"
+  ]
+}
