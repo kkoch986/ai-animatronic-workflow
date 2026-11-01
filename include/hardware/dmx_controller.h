@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace hardware {
     
@@ -16,16 +17,11 @@ public:
     DMXController();
     ~DMXController();
     
-    void initialize(const std::string& device, int uni);
-    void sendDMXData(const std::vector<unsigned char>& data);
-    void setChannelValue(int channel, unsigned char value);
-    void updateChannels();
+    void initialize(const std::string& device_path, int universe);
+    void sendData(const std::vector<uint8_t>& data);
     void release();
     
-    // Helper methods for animatronic control
-    void moveHead(int pan, int tilt);
-    void controlLighting(int intensity);
-    void activateActuator(int actuator_id, float power);
+    bool isInitialized() const { return initialized; }
 };
 
 } // namespace hardware

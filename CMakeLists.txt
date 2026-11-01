@@ -30,8 +30,11 @@ include_directories(
 set(SOURCES
     src/main.cpp
     src/video/video_processor.cpp
+    src/video/facial_analysis.cpp
     src/control/control_system.cpp
     src/audio/audio_processor.cpp
+    src/audio/cactus_integration/cactus_integration.cpp
+    src/audio/cactus_integration/cactus_speech_processor.cpp
     src/hardware/dmx_controller.cpp
 )
 
